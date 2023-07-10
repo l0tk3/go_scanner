@@ -2,7 +2,6 @@ package icmp_scan
 
 import (
 	"fmt"
-	"go_scanner/global"
 	"go_scanner/tools"
 	"net"
 	"sync"
@@ -19,7 +18,7 @@ func is_element_in_list(l []string, element string) bool {
 	}
 	return false
 }
-func Icmp_scan2(ipslist []string) {
+func Icmp_scan2(ipslist []string) []string {
 	conn, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
 	if err != nil {
 		panic(err)
@@ -53,9 +52,9 @@ func Icmp_scan2(ipslist []string) {
 
 	go func() {
 		for alive := range alive_chan {
-			if !is_element_in_list(global.Alive_list, alive) && is_element_in_list(ipslist, alive) {
+			if !is_element_in_list(alive_list, alive) && is_element_in_list(ipslist, alive) {
 				fmt.Println(alive, "\tis alive")
-				global.Alive_list = append(global.Alive_list, alive)
+				alive_list = append(alive_list, alive)
 			}
 			wg.Done()
 		}
@@ -69,4 +68,5 @@ func Icmp_scan2(ipslist []string) {
 	wg.Wait()
 	close(alive_chan)
 	conn.Close()
+	return alive_list
 }

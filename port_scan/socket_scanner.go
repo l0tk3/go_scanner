@@ -2,7 +2,6 @@ package port_scan
 
 import (
 	"fmt"
-	"go_scanner/global"
 	"net"
 	"strconv"
 	"sync"
@@ -24,8 +23,8 @@ func socket_conn(port int, ip string, wg *sync.WaitGroup) bool {
 
 }
 
-func Socket_scan(ip string) {
-	// var alive_prot []int
+func Socket_scan(ip string) []int {
+	var alive_prot []int
 	var wg sync.WaitGroup
 	var sub_wg sync.WaitGroup
 	port_chan := make(chan int, 65536)
@@ -45,9 +44,7 @@ func Socket_scan(ip string) {
 
 	go func() {
 		for alive := range alive_chan {
-
-			global.Alive_port[ip] = append(global.Alive_port[ip], alive)
-			// alive_prot = append(alive_prot, alive)
+			alive_prot = append(alive_prot, alive)
 			sub_wg.Done()
 		}
 	}()
@@ -61,6 +58,6 @@ func Socket_scan(ip string) {
 
 	wg.Wait()
 	close(alive_chan)
-	// fmt.Println(ip, "->", global.Alive_port[ip])
-
+	fmt.Println(ip, "->", alive_prot)
+	return alive_prot
 }
